@@ -14,7 +14,8 @@ import { SignupPage } from "./pages/auth/SignupPage";
 import { EditHabitPage, NewHabitPage } from "./pages/habits/HabitFormPages";
 import { HabitsPage } from "./pages/habits/HabitsPage";
 import { HabitDetailPage } from "./pages/habits/HabitDetailPage";
-import { NotFoundPage, SettingsPage, StatsPage } from "./pages/Placeholders";
+import { StatsPage } from "./pages/stats/StatsPage";
+import { NotFoundPage, SettingsPage } from "./pages/Placeholders";
 import { TodayPage } from "./pages/today/TodayPage";
 import { ThemeSync } from "./theme/ThemeSync";
 

@@ -1,5 +1,5 @@
 import { api, type Session } from "./client";
-import type { Completion, Frequency, Habit, HabitStats, TodayResponse } from "./types";
+import type { Completion, Frequency, Habit, HabitStats, StatsOverview, TodayResponse } from "./types";
 
 export const authApi = {
   signup: (body: { email: string; password: string; name?: string; timezone: string }) =>
@@ -47,6 +47,10 @@ export const habitsApi = {
     api<{ completions: Completion[] }>(`/habits/${id}/completions?from=${from}&to=${to}`).then((r) => r.completions),
 };
 
+export const statsApi = {
+  overview: () => api<StatsOverview>("/stats/overview"),
+};
+
 export const completionsApi = {
   set: (habitId: string, body: { date: string; value?: number | null; note?: string | null }) =>
     api<{ completion: Completion }>(`/habits/${habitId}/completions`, { method: "POST", body }),
@@ -65,5 +69,7 @@ export const queryKeys = {
   habitMonth: (id: string, month: string) => ["habits", id, "completions", month] as const,
   /** Every habit, active and archived; screens filter it. */
   allHabits: ["habits", "list", "all"] as const,
+  /** Prefix for overview statistics. */
   stats: ["stats"] as const,
+  statsOverview: ["stats", "overview"] as const,
 };

@@ -1,25 +1,11 @@
-import { Construction, LogOut } from "lucide-react";
+import { LogOut } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router";
 import { useAuth, useUser } from "../auth/useAuth";
 import { PageHeader } from "../components/layout/AppLayout";
 import { Button } from "../components/ui/Button";
-import { EmptyState } from "../components/ui/States";
 
-// Screens still to be built in later sub-steps of step 5. Each says what it will hold.
-
-function ComingSoon({ title, body }: { title: string; body: string }) {
-  return (
-    <>
-      <PageHeader title={title} />
-      <EmptyState icon={<Construction size={36} />} title="Coming soon" body={body} />
-    </>
-  );
-}
-
-export const StatsPage = () => (
-  <ComingSoon title="Statistics" body="Weekly and monthly charts, best and worst weekdays and top habits." />
-);
+// Minimal screens still to be filled in: Settings (next sub-step) and the 404 page.
 
 export function SettingsPage() {
   const user = useUser();

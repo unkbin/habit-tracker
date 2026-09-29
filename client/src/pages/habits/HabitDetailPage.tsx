@@ -6,13 +6,14 @@ import { ApiError, errorMessage } from "../../api/client";
 import { habitsApi, queryKeys } from "../../api/endpoints";
 import type { Habit, HabitStats, Streak } from "../../api/types";
 import { useUser } from "../../auth/useAuth";
+import { consistencySentence, percent, WeekdayBars } from "../../components/charts/WeekdayBars";
 import { HabitIcon } from "../../components/HabitIcon";
 import { Button } from "../../components/ui/Button";
 import { ConfirmDialog } from "../../components/ui/ConfirmDialog";
 import { Skeleton } from "../../components/ui/Skeleton";
 import { EmptyState, ErrorState } from "../../components/ui/States";
 import { useToast } from "../../components/ui/Toast";
-import { todayIn, WEEKDAY_NAMES, weekdayOrder } from "../../lib/dates";
+import { todayIn } from "../../lib/dates";
 import { describeSchedule, describeTarget } from "../../lib/habits";
 import { HabitCalendar } from "./HabitCalendar";
 
@@ -192,7 +193,6 @@ function Actions({ habit, onDeleted }: { habit: Habit; onDeleted: () => void }) 
   );
 }
 
-const percent = (rate: number | null) => (rate === null ? "–" : `${Math.round(rate * 100)}%`);
 
 function streakText(streak: Streak, value: number) {
   const unit = streak.unit === "days" ? "day" : "week";
@@ -252,43 +252,16 @@ function StatCard({ icon, label, value, detail }: { icon?: ReactNode; label: str
 }
 
 function WeekdayChart({ stats, habit, weekStartDay }: { stats: HabitStats; habit: Habit; weekStartDay: number }) {
-  const rows = weekdayOrder(weekStartDay)
-    .map((d) => stats.byWeekday[d]!)
-    .filter((t) => t.rate !== null);
-  if (rows.length < 2) return null;
-
-  const best = rows.reduce((a, b) => (b.rate! > a.rate! ? b : a));
-  const worst = rows.reduce((a, b) => (b.rate! < a.rate! ? b : a));
-  const longName = (d: number) =>
-    new Date(Date.UTC(1970, 0, 4 + d)).toLocaleDateString(undefined, { weekday: "long", timeZone: "UTC" });
-
+  if (stats.byWeekday.filter((d) => d.rate !== null).length < 2) return null;
+  const sentence = consistencySentence(stats.byWeekday);
   return (
     <section aria-labelledby="weekday-heading" className="mt-4 rounded-card border border-border bg-surface p-4">
       <h2 id="weekday-heading" className="text-subheading font-semibold">
         By day of the week
       </h2>
-      {best.rate !== worst.rate && (
-        <p className="mb-3 text-caption text-muted">
-          Most consistent on {longName(best.weekday)}s, least on {longName(worst.weekday)}s.
-        </p>
-      )}
-      <ul className="flex flex-col gap-2">
-        {rows.map((row) => (
-          <li key={row.weekday} className="grid grid-cols-[3rem_1fr_3rem] items-center gap-2 text-caption">
-            <span className="text-muted">{WEEKDAY_NAMES[row.weekday]}</span>
-            <span className="h-2.5 overflow-hidden rounded-full bg-surface-2" aria-hidden="true">
-              <span className="block h-full rounded-full" style={{ width: `${row.rate! * 100}%`, backgroundColor: habit.color }} />
-            </span>
-            <span className="text-right font-medium">
-              {percent(row.rate)}
-              <span className="sr-only">
-                {" "}
-                ({row.completed} of {row.expected})
-              </span>
-            </span>
-          </li>
-        ))}
-      </ul>
+      {sentence && <p className="mb-3 text-caption text-muted">{sentence}</p>}
+      {/* The habit's own colour: on this page it is the only thing being plotted. */}
+      <WeekdayBars rows={stats.byWeekday} weekStartDay={weekStartDay} color={habit.color} />
     </section>
   );
 }

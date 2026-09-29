@@ -104,6 +104,12 @@ Give this file to the AI alongside the spec at the start of each session.
   card's props, and applied to the cache synchronously, so rapid taps build on each other (three
   quick "+1" taps add 3). A failed save restores the previous data and shows an error toast.
 - Server data lives in TanStack Query; keys are in `client/src/api/endpoints.ts`.
+- Charts use `--c-chart` (`#2f8a57` light, `#3fa66d` dark), not the brand primary: the brand green
+  fails the chroma floor (reads gray) as a data colour. Both values pass the dataviz validator against
+  their surface. Single-series charts have no legend; every chart value is also reachable without
+  hovering (direct labels, a table view, or screen-reader text).
+- Weekly habits are expected pro rata, so check-in counts can be fractional; the UI rounds them and
+  says "about".
 
 ## Scope
 - Deferred to v1.1: Google sign-in, offline check-offs, onboarding slides. Reminders are v1 but last.
