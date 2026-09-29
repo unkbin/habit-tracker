@@ -3,6 +3,7 @@ import clsx from "clsx";
 import { Check, Minus, Plus } from "lucide-react";
 import type { ReactNode } from "react";
 import { Controller, useForm, useWatch, type Control } from "react-hook-form";
+import { Link } from "react-router";
 import { HABIT_ICONS, HabitIcon } from "../../components/HabitIcon";
 import { Button } from "../../components/ui/Button";
 import { Switch } from "../../components/ui/Switch";
@@ -198,7 +199,16 @@ export function HabitForm({ defaultValues, isEdit = false, weekStartDay, submitL
       <Section>
         <Switch label="Daily reminder" description="A notification at a time you choose" {...register("reminder")} />
         {reminder && (
-          <TextField label="Reminder time" type="time" error={errors.reminderTime?.message} {...register("reminderTime")} />
+          <>
+            <TextField label="Reminder time" type="time" error={errors.reminderTime?.message} {...register("reminderTime")} />
+            <p className="-mt-2 text-caption text-muted">
+              Only sent on days it's due and not done yet. Turn notifications on for each device in{" "}
+              <Link to="/settings" className="font-medium text-primary">
+                Settings
+              </Link>
+              .
+            </p>
+          </>
         )}
         <TextField
           label="Start date"

@@ -79,6 +79,29 @@ Give this file to the AI alongside the spec at the start of each session.
   scheduler send each reminder exactly once per local day. Skip habits already done today.
 - Run the scheduler as a Render Cron Job or always-on worker, not inside a free web service that sleeps.
 - One `push_subscriptions` row per device, unique on `endpoint`; delete on a 404/410 from the push service.
+- Implemented in `server/src/jobs/reminders.ts` (`sendDueReminders`), run by `npm run worker`
+  (every minute) or `npm run reminders` (once, for a cron job). A habit is due when its reminder time
+  has passed in the owner's timezone by at most 2 hours (later than that it's skipped, not sent
+  late; a reminder near midnight isn't carried into the next day), it's scheduled today, not
+  archived, not done, and for weekly habits the week's target isn't met. Partly done measured habits
+  are still reminded.
+- Each habit is claimed with a conditional update of `last_reminded_on` before sending, so
+  overlapping runs can't double-send. A failed send isn't retried that day (no reminder spam).
+  Changing a habit's reminder time clears `last_reminded_on`, so the new time fires the same day.
+- Habits due in the same run become one notification per person ("Time for A, B and C"), tag
+  `habit-reminder`, so a newer reminder replaces an unread one. Push TTL is 1 hour.
+- People without a registered device are skipped without marking anything, so turning
+  notifications on later the same day still gets that day's reminder.
+- Subscriptions are only accepted for known push service hosts (Google FCM, Mozilla, Apple,
+  Microsoft) over https: the server POSTs to the endpoint, so an open endpoint would be an SSRF hole.
+  Re-registering an endpoint moves it to the current user; at most 20 devices per person.
+- Logging out removes this device's subscription first (best effort), so a shared device stops
+  getting the previous user's reminders.
+- The service worker is ours (`client/src/sw.ts`, vite-plugin-pwa injectManifest), type-checked
+  with `client/tsconfig.sw.json` (WebWorker lib). It precaches the shell as before, shows pushes, and
+  focuses or opens the app on tap.
+- VAPID keys are generated once per environment (`npm run push:keys`); rotating them invalidates
+  every subscription. Required in production.
 
 ## API
 - Register `PATCH /habits/reorder` before `PATCH /habits/:id`. Reorder takes `{ ids }`; listed habits

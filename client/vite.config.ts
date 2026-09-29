@@ -7,10 +7,13 @@ export default defineConfig({
   plugins: [
     react(),
     tailwindcss(),
-    // Installable app: a manifest plus a service worker that precaches the app shell, so it opens
-    // instantly and offline. API calls are deliberately never cached: stale check-offs shown as
-    // current would be worse than the app's "can't reach the server" state.
+    // Installable app: a manifest plus our own service worker (src/sw.ts), which precaches the app
+    // shell so it opens instantly and offline, and shows reminder notifications. The plugin builds
+    // it and injects the list of files to cache.
     VitePWA({
+      strategies: "injectManifest",
+      srcDir: "src",
+      filename: "sw.ts",
       registerType: "autoUpdate",
       injectRegister: "script-defer",
       includeAssets: ["icon.svg", "apple-touch-icon.png"],
@@ -29,16 +32,8 @@ export default defineConfig({
           { src: "/pwa-maskable-512.png", sizes: "512x512", type: "image/png", purpose: "maskable" },
         ],
       },
-      workbox: {
+      injectManifest: {
         globPatterns: ["**/*.{js,css,html,svg,png}"],
-        // Take control of the page on the very first visit (not only after a reload), activate new
-        // versions straight away, and drop caches from old versions.
-        clientsClaim: true,
-        skipWaiting: true,
-        cleanupOutdatedCaches: true,
-        // Client-side routes load the app shell; /api/* always goes to the network.
-        navigateFallback: "/index.html",
-        navigateFallbackDenylist: [/^\/api\//],
       },
     }),
   ],

@@ -2,6 +2,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
 import { refreshSession, setAccessToken, setSessionLostHandler, type Session } from "../api/client";
 import { authApi } from "../api/endpoints";
+import { forgetThisDevice } from "../lib/push";
 import { AuthContext, type AuthContextValue, type AuthState } from "./useAuth";
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -48,6 +49,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         ),
       logout: async () => {
         try {
+          // First, while still logged in: stop this device getting the user's reminders.
+          await forgetThisDevice();
           await authApi.logout();
         } finally {
           endSession();

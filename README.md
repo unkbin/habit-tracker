@@ -31,6 +31,31 @@ npm run dev:web   # app on http://localhost:5173 (proxies /api to the API)
 top of `server/scripts/seed-dev.ts`. In development, password reset emails are printed to the API
 console.
 
+## Reminders and email
+
+Reminders are Web Push notifications. To try them locally:
+
+1. `npm run push:keys -w server` and paste the two keys into `server/.env`.
+2. Build and serve the app (service workers, which receive notifications, only exist in production
+   builds): `npm run build -w client`, then `npm run preview -w client` and open
+   http://localhost:4173 in Chrome, Edge or Firefox.
+3. Settings → Reminders → Turn on notifications, then Send a test.
+4. Give a habit a reminder time a minute from now and run `npm run worker -w server`
+   (checks every minute), or run `npm run reminders -w server` once after that time.
+
+In production, run the reminder check on a schedule: a cron job running
+`npm run reminders -w server` every 5 minutes, or an always-on worker running
+`npm run worker -w server`. Each habit is reminded at most once a day however often it runs, and
+reminders more than 2 hours late are skipped. iPhone and iPad only deliver web push to apps added to
+the Home Screen; the Settings screen explains this.
+
+Password reset emails go through [Resend](https://resend.com) when `RESEND_API_KEY` and
+`EMAIL_FROM` are set (required in production); otherwise they're printed to the API console.
+
+The no-Docker PGlite database serves every connection through one Postgres session and sometimes
+drops a new connection while another process is connected. The API, worker and scripts retry or can
+simply be re-run; for running the API and worker side by side, the Docker Postgres is smoother.
+
 ## Tests
 
 ```bash
@@ -73,4 +98,8 @@ Check constraints are hand-written at the bottom of the init migration, since Pr
 | GET | `/habits/:id/stats` | streaks, 7/30/90-day rates, totals, weekday breakdown |
 | GET | `/today` | habits due today with done status, streaks and a summary |
 | GET | `/stats/overview` | rates, daily/weekly/monthly series, weekdays, habits ranked |
+| GET | `/push/public-key` | VAPID public key for subscribing, or null if push isn't configured |
+| POST | `/push/subscriptions` | `PushSubscription.toJSON()`; known push services only |
+| DELETE | `/push/subscriptions` | `{ endpoint }`; turns this device off |
+| POST | `/push/test` | sends a test notification to the user's devices |
 | GET | `/health` | |

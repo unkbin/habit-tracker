@@ -12,6 +12,7 @@ import { ConfirmDialog } from "../../components/ui/ConfirmDialog";
 import { TextField } from "../../components/ui/TextField";
 import { useToast } from "../../components/ui/Toast";
 import { todayIn } from "../../lib/dates";
+import { NotificationSettings } from "./NotificationSettings";
 
 type Preferences = Partial<Pick<User, "name" | "timezone" | "weekStartDay" | "theme">>;
 
@@ -61,10 +62,7 @@ export function SettingsPage() {
         <ProfileSection />
         <PreferencesSection />
         <Section title="Reminders" icon={<Bell size={18} aria-hidden="true" />}>
-          <p className="text-body text-muted">
-            Set a reminder time on any habit from its edit screen. Notifications themselves are coming soon; until
-            then, reminder times are saved but not sent.
-          </p>
+          <NotificationSettings />
         </Section>
         <DataSection />
         <AccountSection />
