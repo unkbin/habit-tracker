@@ -35,6 +35,7 @@ describe("another user's habit", () => {
     ["check it off", (u) => u.post(`/habits/${habitId}/completions`).send({ date: today() })],
     ["uncheck it", (u) => u.delete(`/habits/${habitId}/completions/${today()}`)],
     ["read its history", (u) => u.get(`/habits/${habitId}/completions`)],
+    ["read its stats", (u) => u.get(`/habits/${habitId}/stats`)],
   ];
 
   it.each(attempts)("can't %s", async (_label, attempt) => {
@@ -61,6 +62,14 @@ describe("another user's habit", () => {
     expect(res.status).toBe(400);
     const habit = await prisma.habit.findUniqueOrThrow({ where: { id: habitId } });
     expect(habit.sortOrder).toBe(0);
+  });
+
+  it("doesn't appear on their Today screen or in their stats", async () => {
+    const today = await intruder.get("/today");
+    expect(today.body.habits).toEqual([]);
+    const overview = await intruder.get("/stats/overview");
+    expect(overview.body.habits).toEqual([]);
+    expect(overview.body.totalCompletions).toBe(0);
   });
 
   it("isn't included in an export", async () => {

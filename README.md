@@ -57,4 +57,7 @@ Check constraints are hand-written at the bottom of the init migration, since Pr
 | POST | `/habits/:id/completions` | `{ date, value?, note? }`; upsert, last 7 days only |
 | DELETE | `/habits/:id/completions/:date` | idempotent, last 7 days only |
 | GET | `/habits/:id/completions?from=&to=` | defaults to the last 365 days |
+| GET | `/habits/:id/stats` | streaks, 7/30/90-day rates, totals, weekday breakdown |
+| GET | `/today` | habits due today with done status, streaks and a summary |
+| GET | `/stats/overview` | rates, daily/weekly/monthly series, weekdays, habits ranked |
 | GET | `/health` | |

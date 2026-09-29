@@ -37,6 +37,23 @@ Give this file to the AI alongside the spec at the start of each session.
   day) where the target was met. The current week doesn't count against it until it ends.
 - Completion rate = completed scheduled days / scheduled days in the window. Best/worst weekday is
   measured the same way, relative to scheduled days.
+- Implemented in `server/src/domain/progress.ts` (pure functions, unit-tested in
+  `tests/progress.test.ts`). Details settled while building it:
+  - A day that was done still counts even if it falls in an archived period (e.g. done, then
+    archived the same day). Archived days that weren't done are skipped.
+  - A measured habit's day counts only when the amount reached the target; partial amounts are
+    shown but are misses.
+  - Times-per-week: a week the habit only partly existed for (its first week, or partly archived)
+    needs only as many check-offs as it had available days. A fully archived week is skipped.
+  - Times-per-week completion rate expects `timesPerWeek x available days / 7`, capped at 100%.
+    Chart buckets (weeks, months) are tallied per habit over the whole bucket, then summed, so a
+    weekly habit isn't judged day by day.
+- `GET /today` lists active habits that have started and are due today (weekly habits every day).
+  Each item has `done` (checked off today) and `satisfied` (done, or this week's target already met);
+  the summary counts `satisfied`, so a met weekly habit doesn't block "all done".
+- `GET /stats/overview` covers active habits only: rates for 7/30/90 days, 30 daily counts,
+  12 weeks, 6 months, a weekday breakdown over the last 90 days, best/worst weekday (null unless
+  the rates differ) and every habit ranked by 30-day rate.
 
 ## Auth
 - Access token is short-lived and kept **in memory** on the client (never localStorage).

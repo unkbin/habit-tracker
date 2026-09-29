@@ -13,6 +13,7 @@ import {
   normalizeSchedule,
   toPublicHabit,
 } from "../services/habits.js";
+import { habitStats, historyInclude, toHistory } from "../services/progress.js";
 import { completionsRouter } from "./completions.js";
 
 const optionalText = (max: number) =>
@@ -146,6 +147,14 @@ export function habitsRouter(): Router {
   router.get("/:id", async (req, res) => {
     const habit = await findOwnedHabit(currentUserId(req), req.params.id);
     res.json({ habit: toPublicHabit(habit) });
+  });
+
+  router.get("/:id/stats", async (req, res) => {
+    const user = await findCurrentUser(currentUserId(req));
+    const owned = await findOwnedHabit(user.id, req.params.id);
+    const habit = await prisma.habit.findUniqueOrThrow({ where: { id: owned.id }, include: historyInclude });
+    const history = toHistory(habit, localDate(user.timezone));
+    res.json({ stats: habitStats(history, user.weekStartDay) });
   });
 
   router.patch("/:id", async (req, res) => {
