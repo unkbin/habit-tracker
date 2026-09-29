@@ -6,7 +6,7 @@ import { Link, useSearchParams } from "react-router";
 import { errorMessage } from "../../api/client";
 import { habitsApi, queryKeys } from "../../api/endpoints";
 import type { Habit } from "../../api/types";
-import { useUser } from "../../auth/AuthProvider";
+import { useUser } from "../../auth/useAuth";
 import { HabitIcon } from "../../components/HabitIcon";
 import { PageHeader } from "../../components/layout/AppLayout";
 import { Button } from "../../components/ui/Button";

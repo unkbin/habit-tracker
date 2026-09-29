@@ -20,10 +20,46 @@ export function weekdayOrder(weekStartDay: number): number[] {
 }
 
 export function formatLongDate(date: string): string {
-  return new Date(`${date}T00:00:00Z`).toLocaleDateString(undefined, {
+  return toUtc(date).toLocaleDateString(undefined, {
     weekday: "long",
     day: "numeric",
     month: "long",
     timeZone: "UTC",
   });
+}
+
+const toUtc = (date: string) => new Date(`${date}T00:00:00Z`);
+const toDateString = (d: Date) => d.toISOString().slice(0, 10);
+
+export function addDays(date: string, days: number): string {
+  const d = toUtc(date);
+  d.setUTCDate(d.getUTCDate() + days);
+  return toDateString(d);
+}
+
+/** 0 = Sunday. */
+export function weekdayOf(date: string): number {
+  return toUtc(date).getUTCDay();
+}
+
+// Months are "YYYY-MM" strings.
+
+export function monthOf(date: string): string {
+  return date.slice(0, 7);
+}
+
+export function addMonths(month: string, count: number): string {
+  const [year, m] = month.split("-").map(Number) as [number, number];
+  return toDateString(new Date(Date.UTC(year, m - 1 + count, 1))).slice(0, 7);
+}
+
+/** Every date in the month, in order. */
+export function daysOfMonth(month: string): string[] {
+  const [year, m] = month.split("-").map(Number) as [number, number];
+  const count = new Date(Date.UTC(year, m, 0)).getUTCDate();
+  return Array.from({ length: count }, (_, i) => `${month}-${String(i + 1).padStart(2, "0")}`);
+}
+
+export function formatMonth(month: string): string {
+  return toUtc(`${month}-01`).toLocaleDateString(undefined, { month: "long", year: "numeric", timeZone: "UTC" });
 }

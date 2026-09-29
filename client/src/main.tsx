@@ -13,7 +13,8 @@ import { LoginPage } from "./pages/auth/LoginPage";
 import { SignupPage } from "./pages/auth/SignupPage";
 import { EditHabitPage, NewHabitPage } from "./pages/habits/HabitFormPages";
 import { HabitsPage } from "./pages/habits/HabitsPage";
-import { HabitDetailPage, NotFoundPage, SettingsPage, StatsPage } from "./pages/Placeholders";
+import { HabitDetailPage } from "./pages/habits/HabitDetailPage";
+import { NotFoundPage, SettingsPage, StatsPage } from "./pages/Placeholders";
 import { TodayPage } from "./pages/today/TodayPage";
 import { ThemeSync } from "./theme/ThemeSync";
 

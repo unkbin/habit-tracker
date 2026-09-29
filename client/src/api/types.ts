@@ -47,6 +47,22 @@ export interface Streak {
   unit: "days" | "weeks";
 }
 
+/** Completed and expected check-ins over a period; rate is 0-1, or null with nothing expected yet. */
+export interface Tally {
+  completed: number;
+  expected: number;
+  rate: number | null;
+}
+
+export interface HabitStats {
+  streak: Streak;
+  completionRate: { last7: number | null; last30: number | null; last90: number | null };
+  totalCompletions: number;
+  /** Index 0 = Sunday. */
+  byWeekday: (Tally & { weekday: number })[];
+  weekProgress: { done: number; target: number } | null;
+}
+
 export interface TodayItem {
   habit: Habit;
   /** Checked off today (for measured habits: target reached). */

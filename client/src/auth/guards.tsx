@@ -1,6 +1,6 @@
 import { Navigate, Outlet, useLocation } from "react-router";
 import { FullPageSpinner } from "../components/ui/Spinner";
-import { useAuth } from "./AuthProvider";
+import { useAuth } from "./useAuth";
 
 /** Logged-in pages. Anyone else goes to /login and comes back afterwards. */
 export function RequireAuth() {

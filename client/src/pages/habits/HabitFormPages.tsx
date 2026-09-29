@@ -3,7 +3,7 @@ import { ArrowLeft, SearchX } from "lucide-react";
 import { Link, useLocation, useNavigate, useParams } from "react-router";
 import { ApiError, errorMessage } from "../../api/client";
 import { habitsApi, queryKeys } from "../../api/endpoints";
-import { useUser } from "../../auth/AuthProvider";
+import { useUser } from "../../auth/useAuth";
 import { Skeleton } from "../../components/ui/Skeleton";
 import { EmptyState, ErrorState } from "../../components/ui/States";
 import { useToast } from "../../components/ui/Toast";

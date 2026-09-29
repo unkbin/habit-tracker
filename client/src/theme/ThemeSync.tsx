@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { useAuth } from "../auth/AuthProvider";
+import { useAuth } from "../auth/useAuth";
 
 const media = window.matchMedia("(prefers-color-scheme: dark)");
 

@@ -30,17 +30,17 @@ const habits = [
   {
     name: "Drink water",
     icon: "droplet",
-    color: "#0ea5e9",
+    color: "#0284c7",
     frequency: "DAILY" as const,
     targetValue: 8,
     unit: "glasses",
     doneOn: (n: number) => (n % 9 === 4 ? 5 : 8),
   },
-  { name: "Read 20 minutes", icon: "book", color: "#8b5cf6", frequency: "DAILY" as const, doneOn: (n: number) => n % 6 !== 5 },
+  { name: "Read 20 minutes", icon: "book", color: "#7c3aed", frequency: "DAILY" as const, doneOn: (n: number) => n % 6 !== 5 },
   {
     name: "Gym",
     icon: "dumbbell",
-    color: "#f97316",
+    color: "#ea580c",
     frequency: "WEEKDAYS" as const,
     targetWeekdays: [1, 3, 5],
     doneOn: (n: number) => n !== 12,
@@ -48,12 +48,12 @@ const habits = [
   {
     name: "Run",
     icon: "footprints",
-    color: "#22c55e",
+    color: "#16a34a",
     frequency: "TIMES_PER_WEEK" as const,
     timesPerWeek: 3,
     doneOn: (n: number) => n % 2 === 1,
   },
-  { name: "Meditate", icon: "leaf", color: "#14b8a6", frequency: "DAILY" as const, doneOn: (n: number) => n >= 1 && n <= 9 },
+  { name: "Meditate", icon: "leaf", color: "#0d9488", frequency: "DAILY" as const, doneOn: (n: number) => n >= 1 && n <= 9 },
 ];
 
 for (const [sortOrder, { doneOn, ...habit }] of habits.entries()) {

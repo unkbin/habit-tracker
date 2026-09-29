@@ -1,24 +1,8 @@
 import { useQueryClient } from "@tanstack/react-query";
-import { createContext, use, useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
 import { refreshSession, setAccessToken, setSessionLostHandler, type Session } from "../api/client";
 import { authApi } from "../api/endpoints";
-import type { User } from "../api/types";
-
-type AuthState =
-  | { status: "loading"; user: null }
-  | { status: "anonymous"; user: null }
-  | { status: "authenticated"; user: User };
-
-interface AuthContextValue {
-  state: AuthState;
-  login: (email: string, password: string) => Promise<void>;
-  signup: (input: { email: string; password: string; name?: string }) => Promise<void>;
-  logout: () => Promise<void>;
-  /** Replace the cached user after a profile change. */
-  setUser: (user: User) => void;
-}
-
-const AuthContext = createContext<AuthContextValue | null>(null);
+import { AuthContext, type AuthContextValue, type AuthState } from "./useAuth";
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<AuthState>({ status: "loading", user: null });
@@ -74,17 +58,4 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   );
 
   return <AuthContext value={value}>{children}</AuthContext>;
-}
-
-export function useAuth(): AuthContextValue {
-  const context = use(AuthContext);
-  if (!context) throw new Error("useAuth must be used inside AuthProvider");
-  return context;
-}
-
-/** The logged-in user. Only for components rendered behind RequireAuth. */
-export function useUser(): User {
-  const { state } = useAuth();
-  if (state.status !== "authenticated") throw new Error("useUser needs a logged-in user");
-  return state.user;
 }

@@ -1,7 +1,7 @@
 import { Construction, LogOut } from "lucide-react";
 import { useState } from "react";
-import { Link, useParams } from "react-router";
-import { useAuth, useUser } from "../auth/AuthProvider";
+import { Link } from "react-router";
+import { useAuth, useUser } from "../auth/useAuth";
 import { PageHeader } from "../components/layout/AppLayout";
 import { Button } from "../components/ui/Button";
 import { EmptyState } from "../components/ui/States";
@@ -17,17 +17,6 @@ function ComingSoon({ title, body }: { title: string; body: string }) {
   );
 }
 
-export function HabitDetailPage() {
-  const { id } = useParams();
-  return (
-    <>
-      <ComingSoon title="Habit" body="Calendar heatmap, streaks and completion rate for this habit." />
-      <Link to={`/habits/${id}/edit`} className="mt-4 inline-flex min-h-11 items-center font-semibold text-primary">
-        Edit habit
-      </Link>
-    </>
-  );
-}
 export const StatsPage = () => (
   <ComingSoon title="Statistics" body="Weekly and monthly charts, best and worst weekdays and top habits." />
 );

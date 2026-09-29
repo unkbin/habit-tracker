@@ -1,5 +1,5 @@
 import { api, type Session } from "./client";
-import type { Completion, Frequency, Habit, TodayResponse } from "./types";
+import type { Completion, Frequency, Habit, HabitStats, TodayResponse } from "./types";
 
 export const authApi = {
   signup: (body: { email: string; password: string; name?: string; timezone: string }) =>
@@ -41,6 +41,10 @@ export const habitsApi = {
     api<{ habit: Habit }>(`/habits/${id}`, { method: "PATCH", body }).then((r) => r.habit),
   /** Listed habits take positions 0..n-1; unlisted ones keep their order after them. */
   reorder: (ids: string[]) => api("/habits/reorder", { method: "PATCH", body: { ids } }),
+  remove: (id: string) => api(`/habits/${id}`, { method: "DELETE" }),
+  stats: (id: string) => api<{ stats: HabitStats }>(`/habits/${id}/stats`).then((r) => r.stats),
+  completions: (id: string, from: string, to: string) =>
+    api<{ completions: Completion[] }>(`/habits/${id}/completions?from=${from}&to=${to}`).then((r) => r.completions),
 };
 
 export const completionsApi = {
@@ -55,7 +59,10 @@ export const queryKeys = {
   today: ["today"] as const,
   /** Prefix for every habit query, so invalidating it refreshes lists and single habits. */
   habits: ["habits"] as const,
+  /** Prefix for one habit: its data, stats and check-offs. */
   habit: (id: string) => ["habits", id] as const,
+  habitStats: (id: string) => ["habits", id, "stats"] as const,
+  habitMonth: (id: string, month: string) => ["habits", id, "completions", month] as const,
   /** Every habit, active and archived; screens filter it. */
   allHabits: ["habits", "list", "all"] as const,
   stats: ["stats"] as const,

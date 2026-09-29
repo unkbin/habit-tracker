@@ -3,7 +3,7 @@ import { CalendarCheck, PartyPopper, Plus, Sprout } from "lucide-react";
 import { Link } from "react-router";
 import { errorMessage } from "../../api/client";
 import { habitsApi, queryKeys, todayApi } from "../../api/endpoints";
-import { useUser } from "../../auth/AuthProvider";
+import { useUser } from "../../auth/useAuth";
 import { PageHeader } from "../../components/layout/AppLayout";
 import { ProgressRing } from "../../components/ui/ProgressRing";
 import { Skeleton } from "../../components/ui/Skeleton";
