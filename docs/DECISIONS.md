@@ -41,6 +41,15 @@ Give this file to the AI alongside the spec at the start of each session.
 - Reset tokens are hashed, single-use, short-lived; using one revokes all the user's sessions.
   Forgot-password returns the same response whether or not the email exists.
 - Emails are stored lowercased (enforced by a check constraint).
+- Access tokens last 15 minutes, refresh tokens 30 days (renewed on each refresh). Access tokens
+  are stateless, so one stays valid for up to 15 minutes after logout or a password reset.
+- Two refreshes racing with the same cookie look like token reuse and log the user out. The
+  frontend must run only one refresh at a time **across tabs** (Web Locks API: navigator.locks).
+- Signup returns 409 for an existing email. That reveals the email is registered; accepted for v1
+  (rate limited). Login and forgot-password do not reveal it.
+- Rate limits are in memory (per server instance): login 10/15 min, signup 5/hour,
+  forgot-password 5/hour, reset-password 10/15 min, per IP.
+- Errors are JSON: { "error": { "code", "message", "fields"? } }. The frontend switches on code.
 
 ## Reminders
 - `habits.reminder_time` is local wall-clock `"HH:MM"`; `habits.last_reminded_on` makes the
