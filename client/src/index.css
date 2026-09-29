@@ -97,6 +97,11 @@ body {
   outline-offset: 2px;
 }
 
+/* Headings get programmatic focus after navigation (see RootLayout); no ring for that. */
+h1[tabindex="-1"]:focus {
+  outline: none;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

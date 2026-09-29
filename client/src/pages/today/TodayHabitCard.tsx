@@ -4,6 +4,7 @@ import { Link } from "react-router";
 import type { TodayItem } from "../../api/types";
 import { HabitIcon } from "../../components/HabitIcon";
 import type { CheckOffAction } from "../../hooks/useCheckOff";
+import { readableTextOn } from "../../lib/color";
 
 interface Props {
   item: TodayItem;
@@ -71,9 +72,9 @@ export function TodayHabitCard({ item, onAction }: Props) {
         aria-label={done ? `${habit.name}: done. Tap to undo` : `Mark ${habit.name} done`}
         className={clsx(
           "flex size-14 shrink-0 items-center justify-center rounded-full border-2 transition-colors",
-          done ? "animate-pop border-transparent text-white" : "border-border text-transparent hover:border-muted",
+          done ? "animate-pop border-transparent" : "border-border text-transparent hover:border-muted",
         )}
-        style={done ? { backgroundColor: habit.color } : undefined}
+        style={done ? { backgroundColor: habit.color, color: readableTextOn(habit.color) } : undefined}
       >
         <Check size={28} strokeWidth={3} aria-hidden="true" />
       </button>

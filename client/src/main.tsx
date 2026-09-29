@@ -1,24 +1,12 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import { createBrowserRouter, RouterProvider } from "react-router";
+import { RouterProvider } from "react-router";
 import { ApiError } from "./api/client";
 import { AuthProvider } from "./auth/AuthProvider";
-import { RequireAnonymous, RequireAuth } from "./auth/guards";
-import { AppLayout } from "./components/layout/AppLayout";
 import { ToastProvider } from "./components/ui/Toast";
 import "./index.css";
-import { ForgotPasswordPage, ResetPasswordPage } from "./pages/auth/PasswordPages";
-import { LoginPage } from "./pages/auth/LoginPage";
-import { SignupPage } from "./pages/auth/SignupPage";
-import { EditHabitPage, NewHabitPage } from "./pages/habits/HabitFormPages";
-import { HabitsPage } from "./pages/habits/HabitsPage";
-import { HabitDetailPage } from "./pages/habits/HabitDetailPage";
-import { StatsPage } from "./pages/stats/StatsPage";
-import { NotFoundPage } from "./pages/NotFoundPage";
-import { WelcomePage } from "./pages/onboarding/WelcomePage";
-import { SettingsPage } from "./pages/settings/SettingsPage";
-import { TodayPage } from "./pages/today/TodayPage";
+import { router } from "./router";
 import { ThemeSync } from "./theme/ThemeSync";
 
 const queryClient = new QueryClient({
@@ -31,38 +19,6 @@ const queryClient = new QueryClient({
     },
   },
 });
-
-const router = createBrowserRouter([
-  {
-    element: <RequireAnonymous />,
-    children: [
-      { path: "/login", element: <LoginPage /> },
-      { path: "/signup", element: <SignupPage /> },
-      { path: "/forgot-password", element: <ForgotPasswordPage /> },
-      { path: "/reset-password", element: <ResetPasswordPage /> },
-    ],
-  },
-  {
-    element: <RequireAuth />,
-    children: [
-      // Full screen, without the tab bar.
-      { path: "/welcome", element: <WelcomePage /> },
-      {
-        element: <AppLayout />,
-        children: [
-          { index: true, element: <TodayPage /> },
-          { path: "habits", element: <HabitsPage /> },
-          { path: "habits/new", element: <NewHabitPage /> },
-          { path: "habits/:id", element: <HabitDetailPage /> },
-          { path: "habits/:id/edit", element: <EditHabitPage /> },
-          { path: "stats", element: <StatsPage /> },
-          { path: "settings", element: <SettingsPage /> },
-        ],
-      },
-    ],
-  },
-  { path: "*", element: <NotFoundPage /> },
-]);
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>

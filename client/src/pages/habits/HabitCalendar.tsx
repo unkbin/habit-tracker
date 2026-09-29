@@ -6,6 +6,7 @@ import { errorMessage } from "../../api/client";
 import { completionsApi, habitsApi, queryKeys } from "../../api/endpoints";
 import type { Completion, Habit } from "../../api/types";
 import { useToast } from "../../components/ui/Toast";
+import { readableTextOn } from "../../lib/color";
 import {
   addDays,
   addMonths,
@@ -192,14 +193,15 @@ function DayCell({ date, state, color, target, isToday }: { date: string; state:
     <span
       className={clsx(
         "flex h-11 flex-col items-center justify-center rounded-control text-caption",
-        state.kind === "done" && "font-semibold text-white",
+        state.kind === "done" && "font-semibold",
         (state.kind === "missed" || state.kind === "pending") && "bg-surface-2",
         (state.kind === "outside" || state.kind === "unscheduled") && "text-muted opacity-60",
         isToday && "ring-2 ring-text ring-offset-1 ring-offset-surface",
       )}
       style={
         state.kind === "done"
-          ? { backgroundColor: color }
+          ? // White or near-black, whichever clears contrast on this habit colour.
+            { backgroundColor: color, color: readableTextOn(color) }
           : state.kind === "partial"
             ? { backgroundColor: `${color}${Math.round((partialAlpha / 100) * 255).toString(16).padStart(2, "0")}` }
             : undefined
