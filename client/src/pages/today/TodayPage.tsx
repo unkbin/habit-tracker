@@ -8,6 +8,7 @@ import { PageHeader } from "../../components/layout/AppLayout";
 import { ProgressRing } from "../../components/ui/ProgressRing";
 import { Skeleton } from "../../components/ui/Skeleton";
 import { EmptyState, ErrorState } from "../../components/ui/States";
+import { useCelebrations } from "../../hooks/useCelebrations";
 import { useCheckOff } from "../../hooks/useCheckOff";
 import { formatLongDate } from "../../lib/dates";
 import { TodayHabitCard } from "./TodayHabitCard";
@@ -21,6 +22,7 @@ export function TodayPage() {
   // focus, TanStack's default) rolls the screen over after midnight.
   const today = useQuery({ queryKey: queryKeys.today, queryFn: todayApi.get, refetchInterval: 5 * 60_000 });
   const checkOff = useCheckOff();
+  useCelebrations(today.data);
 
   const greeting = user.name ? `Hi, ${user.name}` : "Today";
 
