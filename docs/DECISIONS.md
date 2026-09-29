@@ -110,6 +110,18 @@ Give this file to the AI alongside the spec at the start of each session.
   hovering (direct labels, a table view, or screen-reader text).
 - Weekly habits are expected pro rata, so check-in counts can be fractional; the UI rounds them and
   says "about".
+- Every screen except Login and Today is lazy-loaded (`client/src/router.tsx`). Routes name
+  themselves with `handle.title`; `RootLayout` sets the tab title and focuses the page heading after
+  each navigation.
+- PWA via `vite-plugin-pwa` (generateSW): the app shell and every page chunk are precached, page
+  routes fall back to `index.html` offline, and `/api/*` is never cached. The service worker only
+  exists in production builds (`vite build` + `vite preview` to try it). Step 6 needs push handling
+  in the service worker, which means switching to the plugin's injectManifest mode with our own
+  `sw.ts`.
+- Celebrations (confetti + toast) fire on the transition to all-done and when a daily streak
+  crosses 7, 30 or 100, never on page load; confetti is skipped under prefers-reduced-motion.
+- The last theme is kept in localStorage only as a first-paint hint (see `index.html`); the
+  account setting is the source of truth.
 
 ## Scope
 - Deferred to v1.1: Google sign-in, offline check-offs. Reminders are v1 but last.
