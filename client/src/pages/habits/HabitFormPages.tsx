@@ -11,11 +11,20 @@ import { todayIn } from "../../lib/dates";
 import { HabitForm } from "./HabitForm";
 import { emptyHabitForm, formToInput, habitToForm } from "./habitFormSchema";
 
-/** Leaves the form: back to wherever the user came from, or to `fallback` on a fresh page load. */
+/**
+ * Leaves the form: to `returnTo` if the link that opened it said where (onboarding does, since
+ * going back would land on signup), otherwise back to wherever the user came from, or to
+ * `fallback` on a fresh page load.
+ */
 function useLeave(fallback: string) {
   const navigate = useNavigate();
   const location = useLocation();
-  return () => (location.key !== "default" ? navigate(-1) : navigate(fallback, { replace: true }));
+  const returnTo = (location.state as { returnTo?: string } | null)?.returnTo;
+  return () => {
+    if (returnTo?.startsWith("/")) navigate(returnTo, { replace: true });
+    else if (location.key !== "default") navigate(-1);
+    else navigate(fallback, { replace: true });
+  };
 }
 
 /** After any habit change, Today, lists and stats may all be out of date. */

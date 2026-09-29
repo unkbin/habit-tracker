@@ -8,7 +8,12 @@ import type { User } from "../api/types";
 export type AuthState =
   | { status: "loading"; user: null }
   | { status: "anonymous"; user: null }
-  | { status: "authenticated"; user: User };
+  | {
+      status: "authenticated";
+      user: User;
+      /** Signed up in this session, so onboarding comes before the app. */
+      isNewAccount: boolean;
+    };
 
 export interface AuthContextValue {
   state: AuthState;

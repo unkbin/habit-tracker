@@ -8,9 +8,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<AuthState>({ status: "loading", user: null });
   const queryClient = useQueryClient();
 
-  const startSession = useCallback((session: Session) => {
+  const startSession = useCallback((session: Session, isNewAccount = false) => {
     setAccessToken(session.accessToken);
-    setState({ status: "authenticated", user: session.user });
+    setState({ status: "authenticated", user: session.user, isNewAccount });
   }, []);
 
   const endSession = useCallback(() => {
@@ -44,6 +44,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       signup: async (input) =>
         startSession(
           await authApi.signup({ ...input, timezone: Intl.DateTimeFormat().resolvedOptions().timeZone }),
+          true,
         ),
       logout: async () => {
         try {
@@ -52,7 +53,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           endSession();
         }
       },
-      setUser: (user) => setState({ status: "authenticated", user }),
+      setUser: (user) => setState((s) => ({ status: "authenticated", user, isNewAccount: s.status === "authenticated" && s.isNewAccount })),
     }),
     [state, startSession, endSession],
   );

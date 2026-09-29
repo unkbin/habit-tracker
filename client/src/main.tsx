@@ -16,6 +16,7 @@ import { HabitsPage } from "./pages/habits/HabitsPage";
 import { HabitDetailPage } from "./pages/habits/HabitDetailPage";
 import { StatsPage } from "./pages/stats/StatsPage";
 import { NotFoundPage } from "./pages/NotFoundPage";
+import { WelcomePage } from "./pages/onboarding/WelcomePage";
 import { SettingsPage } from "./pages/settings/SettingsPage";
 import { TodayPage } from "./pages/today/TodayPage";
 import { ThemeSync } from "./theme/ThemeSync";
@@ -44,6 +45,8 @@ const router = createBrowserRouter([
   {
     element: <RequireAuth />,
     children: [
+      // Full screen, without the tab bar.
+      { path: "/welcome", element: <WelcomePage /> },
       {
         element: <AppLayout />,
         children: [

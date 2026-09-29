@@ -112,5 +112,9 @@ Give this file to the AI alongside the spec at the start of each session.
   says "about".
 
 ## Scope
-- Deferred to v1.1: Google sign-in, offline check-offs, onboarding slides. Reminders are v1 but last.
+- Deferred to v1.1: Google sign-in, offline check-offs. Reminders are v1 but last.
+- Onboarding (brought into v1 on request): shown once, right after signup, by routing the new
+  session to `/welcome` (the auth state's `isNewAccount`). No database flag: a returning login or a
+  reload goes straight to the app, and skipping is safe because Today's empty state also leads to a
+  first habit. Starter habits are created as daily habits starting today.
 - Write streak unit tests alongside the streak logic (step 4), not at the end.

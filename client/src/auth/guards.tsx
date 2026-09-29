@@ -22,6 +22,7 @@ export function RequireAnonymous() {
   const location = useLocation();
   if (state.status === "loading") return <FullPageSpinner />;
   if (state.status === "authenticated") {
+    if (state.isNewAccount) return <Navigate to="/welcome" replace />;
     const from = (location.state as { from?: string } | null)?.from;
     return <Navigate to={from?.startsWith("/") ? from : "/"} replace />;
   }

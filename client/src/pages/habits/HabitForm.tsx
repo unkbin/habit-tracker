@@ -10,16 +10,9 @@ import { TextField } from "../../components/ui/TextField";
 import { WEEKDAY_NAMES, weekdayOrder } from "../../lib/dates";
 import { applyApiError } from "../../lib/forms";
 import { HABIT_COLORS } from "../../lib/habitColors";
+import { HABIT_SUGGESTIONS } from "../../lib/habitSuggestions";
 import { habitFormSchema, type HabitFormValues } from "./habitFormSchema";
 
-// Ideas for a first habit; tapping one fills in the name, icon and colour.
-const SUGGESTIONS = [
-  { name: "Drink water", icon: "droplet", color: "#0284c7" },
-  { name: "Read 10 pages", icon: "book", color: "#7c3aed" },
-  { name: "Go for a walk", icon: "footprints", color: "#16a34a" },
-  { name: "Meditate", icon: "leaf", color: "#0d9488" },
-  { name: "Sleep by 11pm", icon: "bed", color: "#4f46e5" },
-];
 
 const FREQUENCIES = [
   { value: "DAILY", label: "Every day" },
@@ -65,7 +58,8 @@ export function HabitForm({ defaultValues, isEdit = false, weekStartDay, submitL
         <div>
           <p className="mb-2 text-caption text-muted">Need an idea?</p>
           <div className="flex flex-wrap gap-2">
-            {SUGGESTIONS.map((s) => (
+            {/* Tapping an idea fills in the name, icon and colour. */}
+            {HABIT_SUGGESTIONS.map((s) => (
               <button
                 key={s.name}
                 type="button"
