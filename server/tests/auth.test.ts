@@ -4,9 +4,8 @@ import { afterAll, beforeEach, describe, expect, it } from "vitest";
 import { createApp } from "../src/app.js";
 import { setEmailTransport, type Email } from "../src/lib/mailer.js";
 import { prisma } from "../src/lib/prisma.js";
-import { rawRefreshCookie, refreshCookieFrom, resetDatabase } from "./helpers.js";
+import { rawRefreshCookie, refreshCookieFrom, resetDatabase, TEST_PASSWORD as PASSWORD } from "./helpers.js";
 
-const PASSWORD = "correct horse battery";
 let app: ReturnType<typeof createApp>;
 let emails: Email[];
 

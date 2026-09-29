@@ -17,7 +17,13 @@ Give this file to the AI alongside the spec at the start of each session.
 - `POST /habits/:id/completions` is an upsert and `DELETE` succeeds if already gone, so retries and
   the offline queue are safe. Queued offline check-offs keep the local date from when they were tapped.
 - Measurable habits: `habits.target_value` (+ optional `unit`) and `completions.value`. A habit with
-  `target_value = null` is yes/no.
+  `target_value = null` is yes/no. A habit can't switch between yes/no and measured after creation
+  (its past completions wouldn't fit); the target amount can change.
+- Removing a check-off is limited to the same 7-day window. Check-offs before a habit's start date
+  are rejected, as are check-offs on archived habits (409 `habit_archived`).
+- Check-offs on unscheduled days (e.g. a Tuesday for a Mon/Wed/Fri habit) are allowed and stored.
+  They count towards totals but can't save a streak.
+- The clock-skew allowance for "future" dates is 10 minutes.
 
 ## Streaks and stats (derived, never stored)
 - Editing a habit's frequency re-scores all its history against the new schedule. Accepted for v1.
@@ -58,7 +64,15 @@ Give this file to the AI alongside the spec at the start of each session.
 - One `push_subscriptions` row per device, unique on `endpoint`; delete on a 404/410 from the push service.
 
 ## API
-- Register `PATCH /habits/reorder` before `PATCH /habits/:id`.
+- Register `PATCH /habits/reorder` before `PATCH /habits/:id`. Reorder takes `{ ids }`; listed habits
+  get positions 0..n-1 and any unlisted ones keep their relative order after them.
+- Another user's habit answers 404 `habit_not_found`, exactly like a missing one.
+- Archive and restore via `PATCH /habits/:id { archived }`. Restoring closes the pause on the day
+  before; archiving and restoring on the same day leaves no pause.
+- Changing `reminderTime` resets `last_reminded_on`.
+- `DELETE /me` requires `{ password }` and answers 403 `incorrect_password` (not 401, which the
+  frontend treats as "logged out").
+- Unique-constraint races answer 409 `conflict`; rows vanishing mid-request answer 404.
 
 ## Scope
 - Deferred to v1.1: Google sign-in, offline check-offs, onboarding slides. Reminders are v1 but last.

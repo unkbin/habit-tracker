@@ -5,6 +5,7 @@ import helmet from "helmet";
 import { config } from "./config.js";
 import { errorHandler, notFound } from "./middleware/errorHandler.js";
 import { authRouter } from "./routes/auth.js";
+import { habitsRouter } from "./routes/habits.js";
 import { meRouter } from "./routes/me.js";
 
 export function createApp() {
@@ -21,6 +22,7 @@ export function createApp() {
   });
   app.use("/auth", authRouter());
   app.use("/me", meRouter());
+  app.use("/habits", habitsRouter());
 
   app.use(notFound);
   app.use(errorHandler);

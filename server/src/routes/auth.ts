@@ -6,11 +6,12 @@ import { HttpError, unauthorized } from "../lib/errors.js";
 import { sendEmail } from "../lib/mailer.js";
 import { burnPasswordCheck, hashPassword, verifyPassword } from "../lib/password.js";
 import { prisma } from "../lib/prisma.js";
+import { clearRefreshCookie, readRefreshCookie, setRefreshCookie } from "../lib/refreshCookie.js";
 import { isValidTimeZone } from "../lib/timezone.js";
 import { generateOpaqueToken, hashToken, signAccessToken } from "../lib/tokens.js";
 import { toPublicUser } from "../lib/users.js";
 import { createAuthLimiters } from "../middleware/rateLimit.js";
-import { createSession, revokeSessionFamily, rotateSession, type IssuedRefreshToken } from "../services/sessions.js";
+import { createSession, revokeSessionFamily, rotateSession } from "../services/sessions.js";
 
 const email = z.string().trim().toLowerCase().max(254).pipe(z.email("Enter a valid email address"));
 // Upper bound stops very long inputs being used to make hashing expensive.
@@ -154,24 +155,3 @@ async function startSession(req: Request, res: Response, userId: string): Promis
   setRefreshCookie(res, await createSession(userId, req.get("user-agent")));
 }
 
-function readRefreshCookie(req: Request): string | undefined {
-  const value: unknown = req.cookies?.[config.refreshCookieName];
-  return typeof value === "string" && value.length > 0 ? value : undefined;
-}
-
-const cookieOptions = () => ({
-  httpOnly: true,
-  secure: config.isProduction,
-  // The frontend and API are served from the same site (see docs/DECISIONS.md), so Lax is
-  // enough for the cookie to be sent and blocks it on cross-site requests (CSRF).
-  sameSite: "lax" as const,
-  path: config.COOKIE_PATH,
-});
-
-function setRefreshCookie(res: Response, issued: IssuedRefreshToken): void {
-  res.cookie(config.refreshCookieName, issued.token, { ...cookieOptions(), expires: issued.expiresAt });
-}
-
-function clearRefreshCookie(res: Response): void {
-  res.clearCookie(config.refreshCookieName, cookieOptions());
-}
