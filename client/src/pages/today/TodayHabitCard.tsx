@@ -32,7 +32,7 @@ export function TodayHabitCard({ item, onAction }: Props) {
           <span className={clsx("block truncate text-body font-medium", done && "text-muted line-through decoration-1")}>
             {habit.name}
           </span>
-          <span className="flex flex-wrap items-center gap-x-2 text-caption text-muted">
+          <span className="flex flex-wrap items-center gap-x-3 text-caption text-muted">
             <StatusLine item={item} />
           </span>
           {measured && (
@@ -102,11 +102,11 @@ function StatusLine({ item }: { item: TodayItem }) {
   }
   if (parts.length === 0) parts.push(item.done ? "Done" : "Not done yet");
 
+  // Parts wrap as whole units; spacing separates them (a "·" would start the next line when wrapped).
   return (
     <>
       {parts.map((part, i) => (
-        <span key={i} className="inline-flex items-center gap-2 whitespace-nowrap">
-          {i > 0 && <span aria-hidden="true">·</span>}
+        <span key={i} className="inline-flex items-center whitespace-nowrap">
           {part}
         </span>
       ))}

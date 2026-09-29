@@ -11,14 +11,8 @@ import "./index.css";
 import { ForgotPasswordPage, ResetPasswordPage } from "./pages/auth/PasswordPages";
 import { LoginPage } from "./pages/auth/LoginPage";
 import { SignupPage } from "./pages/auth/SignupPage";
-import {
-  HabitDetailPage,
-  HabitsPage,
-  NewHabitPage,
-  NotFoundPage,
-  SettingsPage,
-  StatsPage,
-} from "./pages/Placeholders";
+import { EditHabitPage, NewHabitPage } from "./pages/habits/HabitFormPages";
+import { HabitDetailPage, HabitsPage, NotFoundPage, SettingsPage, StatsPage } from "./pages/Placeholders";
 import { TodayPage } from "./pages/today/TodayPage";
 import { ThemeSync } from "./theme/ThemeSync";
 
@@ -53,6 +47,7 @@ const router = createBrowserRouter([
           { path: "habits", element: <HabitsPage /> },
           { path: "habits/new", element: <NewHabitPage /> },
           { path: "habits/:id", element: <HabitDetailPage /> },
+          { path: "habits/:id/edit", element: <EditHabitPage /> },
           { path: "stats", element: <StatsPage /> },
           { path: "settings", element: <SettingsPage /> },
         ],

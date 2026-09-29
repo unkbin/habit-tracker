@@ -39,7 +39,19 @@ export function TodayPage() {
 
   return (
     <>
-      <PageHeader title={greeting} subtitle={formatLongDate(date)} />
+      <PageHeader
+        title={greeting}
+        subtitle={formatLongDate(date)}
+        action={
+          <Link
+            to="/habits/new"
+            aria-label="New habit"
+            className="flex size-11 items-center justify-center rounded-full bg-primary text-on-primary hover:bg-primary-hover"
+          >
+            <Plus size={22} aria-hidden="true" />
+          </Link>
+        }
+      />
 
       {habits.length === 0 ? (
         <NothingDue />

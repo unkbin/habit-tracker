@@ -1,5 +1,5 @@
 import { api, type Session } from "./client";
-import type { Completion, Habit, TodayResponse } from "./types";
+import type { Completion, Frequency, Habit, TodayResponse } from "./types";
 
 export const authApi = {
   signup: (body: { email: string; password: string; name?: string; timezone: string }) =>
@@ -17,9 +17,28 @@ export const todayApi = {
   get: () => api<TodayResponse>("/today"),
 };
 
+/** The editable fields of a habit, as the API accepts them on create and update. */
+export interface HabitInput {
+  name: string;
+  description: string | null;
+  icon: string;
+  color: string;
+  frequency: Frequency;
+  targetWeekdays: number[];
+  timesPerWeek: number | null;
+  targetValue: number | null;
+  unit: string | null;
+  reminderTime: string | null;
+  startDate: string;
+}
+
 export const habitsApi = {
   list: (status: "active" | "archived" | "all" = "active") =>
     api<{ habits: Habit[] }>(`/habits?status=${status}`).then((r) => r.habits),
+  get: (id: string) => api<{ habit: Habit }>(`/habits/${id}`).then((r) => r.habit),
+  create: (body: HabitInput) => api<{ habit: Habit }>("/habits", { method: "POST", body }).then((r) => r.habit),
+  update: (id: string, body: Partial<HabitInput> & { archived?: boolean }) =>
+    api<{ habit: Habit }>(`/habits/${id}`, { method: "PATCH", body }).then((r) => r.habit),
 };
 
 export const completionsApi = {
@@ -32,6 +51,8 @@ export const completionsApi = {
 /** TanStack Query cache keys, in one place so invalidation stays consistent. */
 export const queryKeys = {
   today: ["today"] as const,
+  /** Prefix for every habit query, so invalidating it refreshes lists and single habits. */
   habits: ["habits"] as const,
+  habit: (id: string) => ["habits", id] as const,
   stats: ["stats"] as const,
 };
