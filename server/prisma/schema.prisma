@@ -1,0 +1,164 @@
+// Habit tracker database schema.
+// Conventions (see docs/DECISIONS.md):
+//   - Weekdays are integers 0-6 with 0 = Sunday (matches JS Date#getDay).
+//   - Calendar dates the user sees (completion dates, start dates) are Postgres DATE
+//     columns holding the user's *local* date. Instants (createdAt etc.) are timestamptz.
+//   - Streaks and stats are derived from completions and never stored.
+//   - Check constraints that Prisma can't express live in the migration SQL.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Theme {
+  LIGHT
+  DARK
+  SYSTEM
+}
+
+enum FrequencyType {
+  DAILY // every day
+  WEEKDAYS // specific weekdays, see Habit.targetWeekdays
+  TIMES_PER_WEEK // X times per week, see Habit.timesPerWeek
+}
+
+model User {
+  id           String   @id @default(uuid()) @db.Uuid
+  email        String   @unique // stored lowercased by the app
+  passwordHash String   @map("password_hash")
+  name         String?
+  timezone     String   @default("UTC") // IANA name, e.g. "Europe/London"; set from the browser at signup
+  weekStartDay Int      @default(1) @map("week_start_day") // 0 = Sunday, 1 = Monday
+  theme        Theme    @default(SYSTEM)
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt    DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  habits              Habit[]
+  sessions            Session[]
+  passwordResetTokens PasswordResetToken[]
+  pushSubscriptions   PushSubscription[]
+
+  @@map("users")
+}
+
+model Habit {
+  id             String        @id @default(uuid()) @db.Uuid
+  userId         String        @map("user_id") @db.Uuid
+  name           String
+  description    String?
+  icon           String
+  color          String
+  // Editing the frequency re-scores all history against the new schedule (accepted for v1).
+  frequency      FrequencyType
+  // Only meaningful for WEEKDAYS; must be non-empty then.
+  targetWeekdays Int[]         @default([]) @map("target_weekdays")
+  // Only meaningful for TIMES_PER_WEEK; 1-7.
+  timesPerWeek   Int?          @map("times_per_week")
+  // Measurable habits: null = yes/no habit, otherwise the daily goal (e.g. 8 glasses).
+  targetValue    Int?          @map("target_value")
+  unit           String? // e.g. "glasses", "minutes"
+  // First local date the habit is scheduled. Days before this never count as misses.
+  startDate      DateTime      @map("start_date") @db.Date
+  // Local wall-clock time "HH:MM" in the user's timezone, or null for no reminder.
+  reminderTime   String?       @map("reminder_time")
+  // Local date a reminder was last sent, so the scheduler sends each reminder exactly once.
+  lastRemindedOn DateTime?     @map("last_reminded_on") @db.Date
+  sortOrder      Int           @default(0) @map("sort_order")
+  createdAt      DateTime      @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt      DateTime      @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  completions Completion[]
+  // A habit is archived while it has a pause with no endDate.
+  pauses      HabitPause[]
+
+  @@index([userId, sortOrder])
+  @@map("habits")
+}
+
+// Archiving pauses a habit rather than breaking its streak. Each archive/unarchive cycle is
+// recorded so streak and stats logic can skip the paused dates. Deriving "archived" from an
+// open pause (endDate = null) keeps a single source of truth.
+model HabitPause {
+  id        String    @id @default(uuid()) @db.Uuid
+  habitId   String    @map("habit_id") @db.Uuid
+  startDate DateTime  @map("start_date") @db.Date // first paused local date
+  endDate   DateTime? @map("end_date") @db.Date // last paused local date; null = still archived
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  habit Habit @relation(fields: [habitId], references: [id], onDelete: Cascade)
+
+  @@index([habitId, startDate])
+  @@map("habit_pauses")
+}
+
+model Completion {
+  id        String   @id @default(uuid()) @db.Uuid
+  habitId   String   @map("habit_id") @db.Uuid
+  date      DateTime @db.Date // the user's local date the habit was done
+  // Amount logged for measurable habits; null for yes/no habits.
+  value     Int?
+  note      String?
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  habit Habit @relation(fields: [habitId], references: [id], onDelete: Cascade)
+
+  // Also serves as the index for date-range queries per habit.
+  @@unique([habitId, date])
+  @@map("completions")
+}
+
+// One row per refresh token. Only a SHA-256 hash is stored. Tokens rotate on every refresh;
+// all tokens from one login share a familyId so reuse of an old token revokes the whole family.
+model Session {
+  id        String    @id @default(uuid()) @db.Uuid
+  userId    String    @map("user_id") @db.Uuid
+  familyId  String    @map("family_id") @db.Uuid
+  tokenHash String    @unique @map("token_hash")
+  expiresAt DateTime  @map("expires_at") @db.Timestamptz(3)
+  revokedAt DateTime? @map("revoked_at") @db.Timestamptz(3)
+  userAgent String?   @map("user_agent")
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([familyId])
+  @@map("sessions")
+}
+
+// Single-use, short-lived, stored hashed. Using one revokes all of the user's sessions.
+model PasswordResetToken {
+  id        String    @id @default(uuid()) @db.Uuid
+  userId    String    @map("user_id") @db.Uuid
+  tokenHash String    @unique @map("token_hash")
+  expiresAt DateTime  @map("expires_at") @db.Timestamptz(3)
+  usedAt    DateTime? @map("used_at") @db.Timestamptz(3)
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("password_reset_tokens")
+}
+
+// One row per device/browser. Delete when the push service answers 404 or 410.
+model PushSubscription {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  endpoint  String   @unique
+  p256dh    String
+  auth      String
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("push_subscriptions")
+}
