@@ -1,22 +1,35 @@
 # Habit tracker
 
-Monorepo: `server/` (Express + Prisma + Postgres). The React frontend (`client/`) comes in step 5.
+Monorepo: `server/` (Express + Prisma + Postgres) and `client/` (React + Vite + Tailwind).
 See `docs/DECISIONS.md` for the rules the code follows.
 
 ## Setup
 
-Requires Node 20+ and Docker.
+Requires Node 20+.
 
 ```bash
 npm install
-npm run db:up                      # start Postgres 17 in Docker
 cp server/.env.example server/.env # then fill in JWT_SECRET (the file says how)
-npm run db:deploy -w server        # apply migrations
 npm run db:generate -w server      # generate the Prisma client
-npm run dev -w server              # API on http://localhost:3000
 ```
 
-In development, password reset emails are printed to the server console.
+Then start a database, either one works:
+
+- **Docker:** `npm run db:up`, then `npm run db:deploy -w server` to apply migrations.
+- **No Docker:** `npm run db:local` in its own terminal. It runs PGlite (Postgres in WebAssembly),
+  stores data in `server/.data/`, and applies migrations on start. Point `.env` at it as
+  `.env.example` describes.
+
+Then, each in its own terminal:
+
+```bash
+npm run dev:api   # API on http://localhost:3000
+npm run dev:web   # app on http://localhost:5173 (proxies /api to the API)
+```
+
+`npm run db:seed -w server` creates a demo account with a month of history; the login is at the
+top of `server/scripts/seed-dev.ts`. In development, password reset emails are printed to the API
+console.
 
 ## Tests
 

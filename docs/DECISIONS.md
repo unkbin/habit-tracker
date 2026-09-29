@@ -91,6 +91,20 @@ Give this file to the AI alongside the spec at the start of each session.
   frontend treats as "logged out").
 - Unique-constraint races answer 409 `conflict`; rows vanishing mid-request answer 404.
 
+## Frontend
+- The app calls the API at `/api/*` on its own origin: the Vite dev server proxies it, and in
+  production the host must rewrite `/api/*` to the API. So the refresh cookie path is `/api/auth`
+  (`COOKIE_PATH`), and CORS barely matters.
+- The access token lives only in memory in `client/src/api/client.ts`. On a 401 the client refreshes
+  once (single-flight in the tab, serialised across tabs with `navigator.locks`) and retries. On page
+  load the session is restored from the refresh cookie.
+- Colours are semantic tokens in `client/src/index.css` (`bg-surface`, `text-muted`, ...), switched for
+  dark mode by `<html data-theme>`. Components never use raw colours, except a habit's own colour.
+- Check-offs are optimistic. Each tap is resolved against the latest cached data, not the tapped
+  card's props, and applied to the cache synchronously, so rapid taps build on each other (three
+  quick "+1" taps add 3). A failed save restores the previous data and shows an error toast.
+- Server data lives in TanStack Query; keys are in `client/src/api/endpoints.ts`.
+
 ## Scope
 - Deferred to v1.1: Google sign-in, offline check-offs, onboarding slides. Reminders are v1 but last.
 - Write streak unit tests alongside the streak logic (step 4), not at the end.

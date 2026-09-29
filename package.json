@@ -2,10 +2,16 @@
   "name": "habit-tracker",
   "private": true,
   "workspaces": [
-    "server"
+    "server",
+    "client"
   ],
   "scripts": {
     "db:up": "docker compose up -d db",
-    "db:down": "docker compose down"
+    "db:down": "docker compose down",
+    "dev:api": "npm run dev -w server",
+    "dev:web": "npm run dev -w client",
+    "db:local": "npm run db:local -w server",
+    "test": "npm test -w server",
+    "typecheck": "npm run typecheck -w server && npm run typecheck -w client"
   }
 }
