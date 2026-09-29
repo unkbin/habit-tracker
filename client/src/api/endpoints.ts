@@ -39,6 +39,8 @@ export const habitsApi = {
   create: (body: HabitInput) => api<{ habit: Habit }>("/habits", { method: "POST", body }).then((r) => r.habit),
   update: (id: string, body: Partial<HabitInput> & { archived?: boolean }) =>
     api<{ habit: Habit }>(`/habits/${id}`, { method: "PATCH", body }).then((r) => r.habit),
+  /** Listed habits take positions 0..n-1; unlisted ones keep their order after them. */
+  reorder: (ids: string[]) => api("/habits/reorder", { method: "PATCH", body: { ids } }),
 };
 
 export const completionsApi = {
@@ -54,5 +56,7 @@ export const queryKeys = {
   /** Prefix for every habit query, so invalidating it refreshes lists and single habits. */
   habits: ["habits"] as const,
   habit: (id: string) => ["habits", id] as const,
+  /** Every habit, active and archived; screens filter it. */
+  allHabits: ["habits", "list", "all"] as const,
   stats: ["stats"] as const,
 };

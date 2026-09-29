@@ -17,9 +17,6 @@ function ComingSoon({ title, body }: { title: string; body: string }) {
   );
 }
 
-export const HabitsPage = () => (
-  <ComingSoon title="Habits" body="All your habits, including ones not due today, with reordering and archived habits." />
-);
 export function HabitDetailPage() {
   const { id } = useParams();
   return (

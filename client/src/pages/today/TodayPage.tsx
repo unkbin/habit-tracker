@@ -91,10 +91,10 @@ export function TodayPage() {
 
 /** Nothing on today's list: either no habits at all, or none scheduled today. */
 function NothingDue() {
-  const habits = useQuery({ queryKey: queryKeys.habits, queryFn: () => habitsApi.list() });
+  const habits = useQuery({ queryKey: queryKeys.allHabits, queryFn: () => habitsApi.list("all") });
   if (habits.isPending) return <Skeleton className="h-48" />;
 
-  if (habits.data?.length) {
+  if (habits.data?.some((h) => !h.archived)) {
     return (
       <EmptyState
         icon={<CalendarCheck size={36} />}
