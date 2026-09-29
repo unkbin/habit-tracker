@@ -7,6 +7,7 @@ import { errorHandler, notFound } from "./middleware/errorHandler.js";
 import { authRouter } from "./routes/auth.js";
 import { habitsRouter } from "./routes/habits.js";
 import { meRouter } from "./routes/me.js";
+import { pushRouter } from "./routes/push.js";
 import { statsRouter } from "./routes/stats.js";
 import { todayRouter } from "./routes/today.js";
 
@@ -27,6 +28,7 @@ export function createApp() {
   app.use("/habits", habitsRouter());
   app.use("/today", todayRouter());
   app.use("/stats", statsRouter());
+  app.use("/push", pushRouter());
 
   app.use(notFound);
   app.use(errorHandler);

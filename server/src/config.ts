@@ -23,9 +23,21 @@ const envSchema = z
     TRUST_PROXY: z.coerce.number().int().min(0).default(0),
     RESEND_API_KEY: z.string().optional(),
     EMAIL_FROM: z.string().optional(),
+    // Web Push (reminders). Generate a key pair with `npm run push:keys -w server`. Without them the
+    // API runs normally but reminders can't be sent.
+    VAPID_PUBLIC_KEY: z.string().optional(),
+    VAPID_PRIVATE_KEY: z.string().optional(),
+    // Contact for push services if something goes wrong: "mailto:you@example.com" or an https URL.
+    VAPID_SUBJECT: z
+      .string()
+      .regex(/^(mailto:|https:\/\/)/, "Use mailto: or https://")
+      .default("mailto:admin@example.com"),
   })
   .refine((env) => env.NODE_ENV !== "production" || (env.RESEND_API_KEY && env.EMAIL_FROM), {
     message: "RESEND_API_KEY and EMAIL_FROM are required in production",
+  })
+  .refine((env) => env.NODE_ENV !== "production" || (env.VAPID_PUBLIC_KEY && env.VAPID_PRIVATE_KEY), {
+    message: "VAPID_PUBLIC_KEY and VAPID_PRIVATE_KEY are required in production",
   });
 
 const parsed = envSchema.safeParse(process.env);
@@ -36,6 +48,7 @@ if (!parsed.success) {
 export const config = {
   ...parsed.data,
   isProduction: parsed.data.NODE_ENV === "production",
+  pushEnabled: Boolean(parsed.data.VAPID_PUBLIC_KEY && parsed.data.VAPID_PRIVATE_KEY),
   accessTokenTtlSeconds: 15 * 60,
   refreshTokenTtlMs: 30 * 24 * 60 * 60 * 1000,
   passwordResetTtlMs: 60 * 60 * 1000,

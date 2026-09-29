@@ -20,6 +20,24 @@ export function localDate(timeZone: string, at: Date = new Date()): LocalDate {
   return `${part("year")}-${part("month")}-${part("day")}`;
 }
 
+/** Minutes since local midnight in `timeZone` at the instant `at` (07:30 is 450). */
+export function localMinutes(timeZone: string, at: Date = new Date()): number {
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone,
+    hour: "2-digit",
+    minute: "2-digit",
+    hourCycle: "h23",
+  }).formatToParts(at);
+  const part = (type: Intl.DateTimeFormatPartTypes) => Number(parts.find((p) => p.type === type)!.value);
+  return part("hour") * 60 + part("minute");
+}
+
+/** "HH:MM" to minutes since midnight. */
+export function minutesOf(time: string): number {
+  const [hours, minutes] = time.split(":").map(Number) as [number, number];
+  return hours * 60 + minutes;
+}
+
 export function addDays(date: LocalDate, days: number): LocalDate {
   const d = toDbDate(date);
   d.setUTCDate(d.getUTCDate() + days);

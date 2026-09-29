@@ -13,6 +13,9 @@ export default defineConfig({
       APP_URL: "http://localhost:5173",
       COOKIE_PATH: "/auth",
       RESEND_API_KEY: "",
+      // Placeholders: tests swap in a fake push sender, so these are never used to sign anything.
+      VAPID_PUBLIC_KEY: "test-public-key",
+      VAPID_PRIVATE_KEY: "test-private-key",
     },
   },
 });

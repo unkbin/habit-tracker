@@ -15,7 +15,10 @@
     "db:deploy": "prisma migrate deploy",
     "db:studio": "prisma studio",
     "db:local": "tsx scripts/local-db.ts",
-    "db:seed": "tsx scripts/seed-dev.ts"
+    "db:seed": "tsx scripts/seed-dev.ts",
+    "worker": "tsx src/worker.ts",
+    "reminders": "tsx scripts/send-reminders.ts",
+    "push:keys": "tsx scripts/generate-vapid-keys.ts"
   },
   "dependencies": {
     "@prisma/adapter-pg": "7.10.0",
@@ -28,6 +31,7 @@
     "express-rate-limit": "^8.7.0",
     "helmet": "^8.3.0",
     "jose": "^6.2.12",
+    "web-push": "^3.6.7",
     "zod": "^4.6.5"
   },
   "devDependencies": {
@@ -38,6 +42,7 @@
     "@types/express": "^5.0.6",
     "@types/node": "^24.0.0",
     "@types/supertest": "^7.2.1",
+    "@types/web-push": "^3.6.4",
     "prisma": "7.10.0",
     "supertest": "^7.3.0",
     "tsx": "^4.20.0",
