@@ -1,5 +1,5 @@
 import { api, type Session } from "./client";
-import type { Completion, Frequency, Habit, HabitStats, StatsOverview, TodayResponse } from "./types";
+import type { Completion, Frequency, Habit, HabitStats, StatsOverview, TodayResponse, User } from "./types";
 
 export const authApi = {
   signup: (body: { email: string; password: string; name?: string; timezone: string }) =>
@@ -11,6 +11,14 @@ export const authApi = {
     api<{ message: string }>("/auth/forgot-password", { method: "POST", body: { email }, noRetry: true }),
   resetPassword: (token: string, password: string) =>
     api("/auth/reset-password", { method: "POST", body: { token, password }, noRetry: true }),
+};
+
+export const meApi = {
+  update: (body: Partial<Pick<User, "name" | "timezone" | "weekStartDay" | "theme">>) =>
+    api<{ user: User }>("/me", { method: "PATCH", body }).then((r) => r.user),
+  /** Deletes the account and everything in it. Needs the password again; a wrong one is a 403. */
+  remove: (password: string) => api("/me", { method: "DELETE", body: { password } }),
+  export: () => api<unknown>("/me/export"),
 };
 
 export const todayApi = {

@@ -15,7 +15,8 @@ import { EditHabitPage, NewHabitPage } from "./pages/habits/HabitFormPages";
 import { HabitsPage } from "./pages/habits/HabitsPage";
 import { HabitDetailPage } from "./pages/habits/HabitDetailPage";
 import { StatsPage } from "./pages/stats/StatsPage";
-import { NotFoundPage, SettingsPage } from "./pages/Placeholders";
+import { NotFoundPage } from "./pages/NotFoundPage";
+import { SettingsPage } from "./pages/settings/SettingsPage";
 import { TodayPage } from "./pages/today/TodayPage";
 import { ThemeSync } from "./theme/ThemeSync";
 

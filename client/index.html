@@ -9,6 +9,15 @@
     <!-- Reset links carry a token in the URL; never send it to another site as a referrer. -->
     <meta name="referrer" content="no-referrer" />
     <title>Habits</title>
+    <script>
+      // Paint the last-used theme before the app loads, so a dark-mode user doesn't see a light flash.
+      // ThemeSync (src/theme/ThemeSync.tsx) writes this key and takes over once the session loads.
+      try {
+        var pref = localStorage.getItem("habits-theme");
+        var dark = pref === "DARK" || (pref !== "LIGHT" && matchMedia("(prefers-color-scheme: dark)").matches);
+        document.documentElement.dataset.theme = dark ? "dark" : "light";
+      } catch (e) {}
+    </script>
   </head>
   <body>
     <div id="root"></div>
