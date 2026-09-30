@@ -10,6 +10,7 @@ import { useUser } from "../../auth/useAuth";
 import { HabitIcon } from "../../components/HabitIcon";
 import { PageHeader } from "../../components/layout/AppLayout";
 import { Button } from "../../components/ui/Button";
+import { StaleNotice } from "../../components/ui/StaleNotice";
 import { Skeleton } from "../../components/ui/Skeleton";
 import { EmptyState, ErrorState } from "../../components/ui/States";
 import { useToast } from "../../components/ui/Toast";
@@ -51,7 +52,7 @@ export function HabitsPage() {
       </div>
     );
   }
-  if (habits.isError) {
+  if (!habits.data) {
     return (
       <>
         {header}
@@ -66,6 +67,7 @@ export function HabitsPage() {
   return (
     <>
       {header}
+      {habits.isError && <StaleNotice onRetry={() => void habits.refetch()} />}
       {!draftOrder && <ViewSwitch view={view} activeCount={active.length} archivedCount={archived.length} />}
       {view === "active" ? (
         <ActiveList habits={active} draftOrder={draftOrder} setDraftOrder={setDraftOrder} />

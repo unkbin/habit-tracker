@@ -11,6 +11,7 @@ import { RateColumnChart, type RatePoint } from "../../components/charts/RateCol
 import { consistencySentence, percent, WeekdayBars } from "../../components/charts/WeekdayBars";
 import { HabitIcon } from "../../components/HabitIcon";
 import { PageHeader } from "../../components/layout/AppLayout";
+import { StaleNotice } from "../../components/ui/StaleNotice";
 import { Skeleton } from "../../components/ui/Skeleton";
 import { EmptyState, ErrorState } from "../../components/ui/States";
 
@@ -30,7 +31,7 @@ export function StatsPage() {
       </div>
     );
   }
-  if (overview.isError) {
+  if (!overview.data) {
     return (
       <>
         {header}
@@ -61,6 +62,7 @@ export function StatsPage() {
   return (
     <>
       {header}
+      {overview.isError && <StaleNotice onRetry={() => void overview.refetch()} />}
       {/* Refetches (e.g. after a check-off elsewhere) keep the current render, slightly faded. */}
       <div className={clsx("flex flex-col gap-4 transition-opacity", overview.isFetching && "opacity-70")}>
         <Summary data={data} />

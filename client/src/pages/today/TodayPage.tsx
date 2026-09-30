@@ -6,6 +6,7 @@ import { habitsApi, queryKeys, todayApi } from "../../api/endpoints";
 import { useUser } from "../../auth/useAuth";
 import { PageHeader } from "../../components/layout/AppLayout";
 import { ProgressRing } from "../../components/ui/ProgressRing";
+import { StaleNotice } from "../../components/ui/StaleNotice";
 import { Skeleton } from "../../components/ui/Skeleton";
 import { EmptyState, ErrorState } from "../../components/ui/States";
 import { useCelebrations } from "../../hooks/useCelebrations";
@@ -27,7 +28,8 @@ export function TodayPage() {
   const greeting = user.name ? `Hi, ${user.name}` : "Today";
 
   if (today.isPending) return <TodaySkeleton title={greeting} />;
-  if (today.isError) {
+  // The full error screen only when there is nothing to show; a failed refresh keeps the data.
+  if (!today.data) {
     return (
       <>
         <PageHeader title={greeting} />
@@ -55,6 +57,7 @@ export function TodayPage() {
         }
       />
 
+      {today.isError && <StaleNotice onRetry={() => void today.refetch()} />}
       {habits.length === 0 ? (
         <NothingDue />
       ) : (

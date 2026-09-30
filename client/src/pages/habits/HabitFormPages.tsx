@@ -97,7 +97,8 @@ export function EditHabitPage() {
       </div>
     );
   }
-  if (habit.isError) {
+  // A failed refresh keeps the form (and whatever was typed); only a first load can fail here.
+  if (!habit.data) {
     return (
       <>
         {header}

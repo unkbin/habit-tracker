@@ -10,6 +10,7 @@ import { consistencySentence, percent, WeekdayBars } from "../../components/char
 import { HabitIcon } from "../../components/HabitIcon";
 import { Button } from "../../components/ui/Button";
 import { ConfirmDialog } from "../../components/ui/ConfirmDialog";
+import { StaleNotice } from "../../components/ui/StaleNotice";
 import { Skeleton } from "../../components/ui/Skeleton";
 import { EmptyState, ErrorState } from "../../components/ui/States";
 import { useToast } from "../../components/ui/Toast";
@@ -51,7 +52,7 @@ export function HabitDetailPage() {
       </div>
     );
   }
-  if (habit.isError) {
+  if (!habit.data) {
     const notFound = habit.error instanceof ApiError && habit.error.status === 404;
     return (
       <>
@@ -94,6 +95,15 @@ export function HabitDetailPage() {
 
       {h.description && <p className="mb-4 text-body text-muted">{h.description}</p>}
 
+      {(habit.isError || stats.isError) && (
+        <StaleNotice
+          onRetry={() => {
+            void habit.refetch();
+            void stats.refetch();
+          }}
+        />
+      )}
+
       <Actions habit={h} onDeleted={() => navigate("/habits", { replace: true })} />
 
       {h.archived && (
@@ -108,7 +118,7 @@ export function HabitDetailPage() {
             <Skeleton key={i} className="h-24" />
           ))}
         </div>
-      ) : stats.isError ? (
+      ) : !stats.data ? (
         <div className="mb-4">
           <ErrorState message={errorMessage(stats.error)} onRetry={() => void stats.refetch()} />
         </div>

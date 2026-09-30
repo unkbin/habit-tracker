@@ -1,5 +1,5 @@
 import type { ComponentType } from "react";
-import { createBrowserRouter } from "react-router";
+import { createBrowserRouter, type RouteObject } from "react-router";
 import { RequireAnonymous, RequireAuth } from "./auth/guards";
 import { AppLayout } from "./components/layout/AppLayout";
 import { RootLayout } from "./components/layout/RootLayout";
@@ -17,7 +17,7 @@ function lazyPage<M>(load: () => Promise<M>, pick: (module: M) => ComponentType)
   return async () => ({ Component: pick(await load()) });
 }
 
-export const router = createBrowserRouter([
+export const routes: RouteObject[] = [
   {
     element: <RootLayout />,
     hydrateFallbackElement: <FullPageSpinner />,
@@ -97,4 +97,6 @@ export const router = createBrowserRouter([
       },
     ],
   },
-]);
+];
+
+export const router = createBrowserRouter(routes);
