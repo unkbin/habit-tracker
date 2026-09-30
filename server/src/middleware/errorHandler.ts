@@ -1,6 +1,7 @@
 import type { NextFunction, Request, Response } from "express";
 import { ZodError } from "zod";
 import { Prisma } from "../generated/prisma/client.js";
+import { reportError } from "../lib/errorReporting.js";
 import { HttpError } from "../lib/errors.js";
 
 export function notFound(_req: Request, res: Response): void {
@@ -39,6 +40,6 @@ export function errorHandler(err: unknown, _req: Request, res: Response, _next: 
     res.status(400).json({ error: { code: "invalid_json", message: "Request body is not valid JSON" } });
     return;
   }
-  console.error(err);
+  reportError(err);
   res.status(500).json({ error: { code: "internal_error", message: "Something went wrong" } });
 }

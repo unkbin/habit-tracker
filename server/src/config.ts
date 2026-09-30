@@ -32,6 +32,12 @@ const envSchema = z
       .string()
       .regex(/^(mailto:|https:\/\/)/, "Use mailto: or https://")
       .default("mailto:admin@example.com"),
+    // Optional error tracking (Sentry). Empty or unset turns it off.
+    SENTRY_DSN: z
+      .string()
+      .optional()
+      .transform((value) => value || undefined)
+      .pipe(z.url("SENTRY_DSN must be the DSN URL from your Sentry project").optional()),
   })
   .refine((env) => env.NODE_ENV !== "production" || (env.RESEND_API_KEY && env.EMAIL_FROM), {
     message: "RESEND_API_KEY and EMAIL_FROM are required in production",

@@ -1,10 +1,13 @@
 // Long-running reminder worker: checks for due reminders at the start of every minute.
 // Run it as an always-on background worker (e.g. a Render Background Worker). For a scheduled
-// job instead (e.g. a Render Cron Job every few minutes), use scripts/send-reminders.ts.
+// job instead (e.g. a Render Cron Job every few minutes), use src/remindersOnce.ts.
 
 import { config } from "./config.js";
 import { sendDueReminders } from "./jobs/reminders.js";
+import { initErrorReporting, reportError } from "./lib/errorReporting.js";
 import { prisma } from "./lib/prisma.js";
+
+initErrorReporting("worker");
 
 if (!config.pushEnabled) {
   console.warn("VAPID keys are not set, so reminders can't be sent. See .env.example.");
@@ -19,7 +22,7 @@ async function tick() {
     if (run.reminded > 0) console.info(`Reminders: ${run.reminded} habits, ${run.users} people, ${run.delivered} devices`);
   } catch (error) {
     // Keep running; the next minute tries again.
-    console.error("Reminder run failed", error);
+    reportError(error, { context: "reminder run" });
   }
   if (!stopping) timer = setTimeout(tick, 60_000 - (Date.now() % 60_000) + 1_000);
 }

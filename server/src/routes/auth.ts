@@ -3,6 +3,7 @@ import { z } from "zod";
 import { config } from "../config.js";
 import { Prisma } from "../generated/prisma/client.js";
 import { HttpError, unauthorized } from "../lib/errors.js";
+import { reportError } from "../lib/errorReporting.js";
 import { sendEmail } from "../lib/mailer.js";
 import { burnPasswordCheck, hashPassword, verifyPassword } from "../lib/password.js";
 import { prisma } from "../lib/prisma.js";
@@ -113,7 +114,7 @@ export function authRouter(): Router {
           `Someone asked to reset the password for your account.\n\n` +
           `Reset it here (the link works once and expires in 1 hour):\n${link}\n\n` +
           `If this wasn't you, you can ignore this email.`,
-      }).catch((err) => console.error("Failed to send password reset email", err));
+      }).catch((err) => reportError(err, { context: "password reset email" }));
     }
     res.status(202).json({ message: FORGOT_PASSWORD_MESSAGE });
   });
