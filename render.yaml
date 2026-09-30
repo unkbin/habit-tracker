@@ -10,6 +10,9 @@ databases:
     databaseName: habits
     user: habits
     plan: basic-256mb # paid plans include daily backups
+    # Render has no Australian region; Singapore is the closest. The database must be in the same
+    # region as the API, and its region can't be changed after it's created.
+    region: singapore
     postgresMajorVersion: "17"
 
 envVarGroups:
@@ -52,7 +55,7 @@ services:
     name: habits-api
     runtime: node
     plan: starter
-    region: oregon
+    region: singapore
     buildCommand: npm ci --include=dev && npm run db:generate -w server && npm run build -w server
     # Runs before each new version goes live; a failed migration stops the deploy.
     preDeployCommand: npm run db:deploy -w server
@@ -71,7 +74,7 @@ services:
     name: habits-reminders
     runtime: node
     plan: starter
-    region: oregon
+    region: singapore
     # Every 5 minutes (UTC). Each habit is reminded at most once a day however often this runs.
     schedule: "*/5 * * * *"
     buildCommand: npm ci --include=dev && npm run db:generate -w server && npm run build -w server
