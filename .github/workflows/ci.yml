@@ -40,7 +40,8 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 24
+          # Same version as production: .node-version, and package.json "engines" for Render and Vercel.
+          node-version-file: .node-version
           cache: npm
 
       - run: npm ci
