@@ -17,8 +17,10 @@
     "db:local": "tsx scripts/local-db.ts",
     "db:seed": "tsx scripts/seed-dev.ts",
     "worker": "tsx src/worker.ts",
-    "reminders": "tsx scripts/send-reminders.ts",
-    "push:keys": "tsx scripts/generate-vapid-keys.ts"
+    "reminders": "tsx src/remindersOnce.ts",
+    "push:keys": "tsx scripts/generate-vapid-keys.ts",
+    "start:worker": "node dist/worker.js",
+    "reminders:prod": "node dist/remindersOnce.js"
   },
   "dependencies": {
     "@prisma/adapter-pg": "7.10.0",

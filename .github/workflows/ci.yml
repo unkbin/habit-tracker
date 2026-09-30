@@ -1,0 +1,68 @@
+# Runs on every push and pull request. Render deploys only after these checks pass
+# (autoDeployTrigger: checksPass in render.yaml); protect the main branch in GitHub to require them
+# before merging, so Vercel's deploy of main has passed them too.
+name: CI
+
+on:
+  push:
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: habits
+          POSTGRES_PASSWORD: habits
+          POSTGRES_DB: habits_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U habits"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      # The server tests use this database instead of the in-memory one (they empty it first).
+      TEST_DATABASE_URL: postgresql://habits:habits@localhost:5432/habits_test
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - run: npm ci
+
+      - name: Generate the Prisma client
+        run: npm run db:generate -w server
+
+      - name: Apply migrations (as the pre-deploy step does in production)
+        run: npm run db:deploy -w server
+        env:
+          DATABASE_URL: ${{ env.TEST_DATABASE_URL }}
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Server tests
+        run: npm test -w server
+
+      - name: App tests
+        run: npm test -w client
+
+      - name: Build
+        run: |
+          npm run build -w server
+          npm run build -w client

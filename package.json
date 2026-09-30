@@ -13,5 +13,8 @@
     "db:local": "npm run db:local -w server",
     "test": "npm test -w server",
     "typecheck": "npm run typecheck -w server && npm run typecheck -w client"
+  },
+  "engines": {
+    "node": ">=22"
   }
 }

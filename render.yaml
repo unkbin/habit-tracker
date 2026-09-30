@@ -1,0 +1,85 @@
+# Render Blueprint: the API, the reminder cron job and Postgres.
+# New Blueprint in the Render dashboard, point it at this repo, then fill in the values marked
+# `sync: false` when Render asks (they're secrets or depend on your domain). See docs/DEPLOYMENT.md.
+#
+# Plans are the smallest paid ones: free web services sleep (slow first request after idle), free
+# databases expire after 30 days and have no backups, and pre-deploy migrations need a paid plan.
+
+databases:
+  - name: habits-db
+    databaseName: habits
+    user: habits
+    plan: basic-256mb # paid plans include daily backups
+    postgresMajorVersion: "17"
+
+envVarGroups:
+  # Shared by the API and the cron job so they can't drift apart.
+  - name: habits-shared
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: JWT_SECRET
+        generateValue: true
+      # The web app's address, e.g. https://habits.example.com (or https://your-app.vercel.app).
+      - key: APP_URL
+        sync: false
+      - key: CORS_ORIGINS
+        sync: false
+      # The app reaches the API through its own /api path (vercel.json rewrite), so the refresh
+      # cookie belongs to the app's site and lives under /api/auth.
+      - key: COOKIE_PATH
+        value: /api/auth
+      # Vercel's proxy plus Render's load balancer sit in front of the API; with 2 hops trusted,
+      # rate limits see the visitor's IP. docs/DEPLOYMENT.md explains how to confirm it.
+      - key: TRUST_PROXY
+        value: "2"
+      - key: RESEND_API_KEY
+        sync: false
+      - key: EMAIL_FROM
+        sync: false
+      - key: VAPID_PUBLIC_KEY
+        sync: false
+      - key: VAPID_PRIVATE_KEY
+        sync: false
+      - key: VAPID_SUBJECT
+        sync: false
+      # Optional: error tracking. Leave empty to turn it off.
+      - key: SENTRY_DSN
+        sync: false
+
+services:
+  - type: web
+    name: habits-api
+    runtime: node
+    plan: starter
+    region: oregon
+    buildCommand: npm ci --include=dev && npm run db:generate -w server && npm run build -w server
+    # Runs before each new version goes live; a failed migration stops the deploy.
+    preDeployCommand: npm run db:deploy -w server
+    startCommand: npm run start -w server
+    healthCheckPath: /health
+    # Deploy only after the GitHub Actions checks on the commit pass.
+    autoDeployTrigger: checksPass
+    envVars:
+      - fromGroup: habits-shared
+      - key: DATABASE_URL
+        fromDatabase:
+          name: habits-db
+          property: connectionString
+
+  - type: cron
+    name: habits-reminders
+    runtime: node
+    plan: starter
+    region: oregon
+    # Every 5 minutes (UTC). Each habit is reminded at most once a day however often this runs.
+    schedule: "*/5 * * * *"
+    buildCommand: npm ci --include=dev && npm run db:generate -w server && npm run build -w server
+    startCommand: npm run reminders:prod -w server
+    autoDeployTrigger: checksPass
+    envVars:
+      - fromGroup: habits-shared
+      - key: DATABASE_URL
+        fromDatabase:
+          name: habits-db
+          property: connectionString
