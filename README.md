@@ -59,12 +59,21 @@ simply be re-run; for running the API and worker side by side, the Docker Postgr
 ## Tests
 
 ```bash
-npm test -w server
+npm run typecheck
+npm test -w server   # API, streak logic, reminders
+npm test -w client   # the app's main flows, in a simulated browser
 ```
 
-The tests don't need Docker: by default they start an in-memory Postgres (PGlite) and apply the
-migrations to it. To run them against a real database instead (e.g. in CI), set
+The server tests don't need Docker: by default they start an in-memory Postgres (PGlite) and apply
+the migrations to it. To run them against a real database instead (e.g. in CI), set
 `TEST_DATABASE_URL` to an already-migrated database. The tests empty it before each test.
+`docs/TESTING.md` lists what's covered and a manual checklist for real devices.
+
+## Deploying
+
+Vercel (app) and Render (API, reminder cron job, Postgres), configured by `vercel.json` and
+`render.yaml`; GitHub Actions (`.github/workflows/ci.yml`) runs every check on each push, and Render
+deploys only after it passes. Step-by-step: `docs/DEPLOYMENT.md`.
 
 ## Database
 

@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import clsx from "clsx";
 import { Bell, Download, LogOut, Monitor, Moon, Sun, Trash2 } from "lucide-react";
 import { useId, useState, type ReactNode } from "react";
+import { Link } from "react-router";
 import { ApiError, errorMessage } from "../../api/client";
 import { meApi } from "../../api/endpoints";
 import type { Theme, User } from "../../api/types";
@@ -241,7 +242,12 @@ function DataSection() {
   return (
     <Section title="Your data">
       <p className="mb-3 text-body text-muted">
-        Download everything: your profile, habits, archived periods and every check-off, as a JSON file.
+        Download everything: your profile, habits, archived periods and every check-off, as a JSON file. See how
+        your data is handled in the{" "}
+        <Link to="/privacy" className="font-medium text-primary">
+          privacy page
+        </Link>
+        .
       </p>
       <Button variant="secondary" loading={exporting} onClick={() => void download()}>
         <Download size={18} aria-hidden="true" /> Export data

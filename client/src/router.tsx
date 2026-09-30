@@ -3,6 +3,7 @@ import { createBrowserRouter, type RouteObject } from "react-router";
 import { RequireAnonymous, RequireAuth } from "./auth/guards";
 import { AppLayout } from "./components/layout/AppLayout";
 import { RootLayout } from "./components/layout/RootLayout";
+import { RouteError } from "./components/layout/RouteError";
 import { FullPageSpinner } from "./components/ui/Spinner";
 import { LoginPage } from "./pages/auth/LoginPage";
 import { TodayPage } from "./pages/today/TodayPage";
@@ -21,6 +22,8 @@ export const routes: RouteObject[] = [
   {
     element: <RootLayout />,
     hydrateFallbackElement: <FullPageSpinner />,
+    // Any screen that crashes (or whose code can no longer be downloaded) lands here.
+    errorElement: <RouteError />,
     children: [
       {
         element: <RequireAnonymous />,
@@ -89,6 +92,12 @@ export const routes: RouteObject[] = [
             ],
           },
         ],
+      },
+      // Public: readable whether or not you are logged in.
+      {
+        path: "/privacy",
+        handle: { title: "Privacy" },
+        lazy: lazyPage(() => import("./pages/PrivacyPage"), (m) => m.PrivacyPage),
       },
       {
         path: "*",
