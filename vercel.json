@@ -6,7 +6,7 @@
   "rewrites": [
     {
       "source": "/api/:path*",
-      "destination": "https://habits-api.onrender.com/:path*"
+      "destination": "https://habits-api-i1wt.onrender.com/:path*"
     },
     {
       "source": "/((?!api/).*)",

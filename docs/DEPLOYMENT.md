@@ -53,8 +53,12 @@ Keep these somewhere safe (a password manager); you'll need them again for any n
    and says which one.
 3. Apply. Render creates the database, runs migrations before the API goes live
    (`preDeployCommand`), and starts the cron job.
-4. Note the API's address, normally `https://habits-api.onrender.com`. If Render gave it a different
-   name, put that address in `vercel.json` (the first rewrite's `destination`) and push.
+4. Copy the API's address from the `habits-api` page (under its name). `onrender.com` names are
+   shared by every Render user, so it usually has a suffix, like `https://habits-api-i1wt.onrender.com`
+   (this project's). **Never assume the plain name:** `habits-api.onrender.com` belongs to someone
+   else. Put the address in `vercel.json` (the first rewrite's `destination`) and push. Check it's
+   really yours first: `/health` returns `{"ok":true}` and an unknown path returns
+   `{"error":{"code":"not_found",...}}`.
 
 Both services redeploy automatically after CI passes on `main` (`autoDeployTrigger: checksPass`).
 
